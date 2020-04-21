@@ -10,6 +10,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
+import static java.util.Arrays.asList;
+
 class RemoveMavenExtensionsTest extends AbstractRemoveExtensionsTest<Model> {
 
     @Override
@@ -21,19 +23,16 @@ class RemoveMavenExtensionsTest extends AbstractRemoveExtensionsTest<Model> {
                 .artifactId("remove-maven-extension-test")
                 .version("0.0.1-SNAPSHOT")
                 .execute();
+        new AddExtensions(new FileProjectWriter(getProjectPath().toFile()), getPlatformDescriptor())
+                .extensions(new HashSet<>(asList("quarkus-agroal", "quarkus-arc", " hibernate-validator",
+                        "commons-io:commons-io:2.6", "quarkus-jdbc-postgresql", "quarkus-hibernate-search-elasticsearch", "quarkus-vertx")))
+                .execute();
         return MojoUtils.readPom(pom);
     }
 
     @Override
     protected Model readProject() throws IOException {
         return MojoUtils.readPom(getProjectPath().resolve("pom.xml").toFile());
-    }
-
-    @Override
-    protected QuarkusCommandOutcome addExtensions(List<String> extensions) throws IOException, QuarkusCommandException {
-        return new AddExtensions(new FileProjectWriter(getProjectPath().toFile()), getPlatformDescriptor())
-                .extensions(new HashSet<>(extensions))
-                .execute();
     }
 
     @Override

@@ -57,7 +57,30 @@ public abstract class BuildFile implements Closeable {
         }
     }
 
+    public boolean removeDependency(QuarkusPlatformDescriptor platform, Extension extension) throws IOException {
+        if (!hasDependency(extension)) {
+            PRINTER.noop(" Skipping not existing extension " + extension.managementKey());
+            return false;
+        } else {
+            PRINTER.ok(" Removing extension " + extension.managementKey());
+            Dependency dep;
+            if (containsBOM(platform.getBomGroupId(), platform.getBomArtifactId())
+                    && isDefinedInBom(platform.getManagedDependencies(), extension)) {
+                dep = extension.toDependency(true);
+            } else {
+                dep = extension.toDependency(false);
+                if (getProperty(MojoUtils.TEMPLATE_PROPERTY_QUARKUS_VERSION_NAME) != null) {
+                    dep.setVersion(MojoUtils.TEMPLATE_PROPERTY_QUARKUS_VERSION_VALUE);
+                }
+            }
+            removeDependencyInBuildFile(dep);
+            return true;
+        }
+    }
+
     protected abstract void addDependencyInBuildFile(Dependency dependency) throws IOException;
+    
+    protected abstract void removeDependencyInBuildFile(Dependency dependency) throws IOException;
 
     protected abstract boolean hasDependency(Extension extension) throws IOException;
 

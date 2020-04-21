@@ -152,6 +152,13 @@ public class GradleBuildFile extends BuildFile {
         getModel().setBuildContent(newBuildContent.toString());
     }
 
+    @Override
+    protected void removeDependencyInBuildFile(Dependency dependency) throws IOException {
+        StringBuilder newBuildContent = new StringBuilder();
+        readLineByLine(getModel().getBuildContent(), new RemoveDependency(newBuildContent, dependency));
+        getModel().setBuildContent(newBuildContent.toString());
+    }
+
     private void readLineByLine(String content, Consumer<String> lineConsumer) {
         try (Scanner scanner = new Scanner(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)),
                 StandardCharsets.UTF_8.name())) {
@@ -186,6 +193,25 @@ public class GradleBuildFile extends BuildFile {
                 }
                 newContent.append("'")
                         .append(System.lineSeparator());
+            }
+        }
+
+    }
+
+    private static class RemoveDependency implements Consumer<String> {
+
+        private StringBuilder newContent;
+        private Dependency dependency;
+
+        public RemoveDependency(StringBuilder newContent, Dependency dependency) {
+            this.newContent = newContent;
+            this.dependency = dependency;
+        }
+
+        @Override
+        public void accept(String currentLine) {
+            if (!currentLine.contains(dependency.getGroupId() + ":" + dependency.getArtifactId())) {
+                newContent.append(currentLine).append(System.lineSeparator());
             }
         }
 

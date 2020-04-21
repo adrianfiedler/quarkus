@@ -1,25 +1,26 @@
 package io.quarkus.maven;
 
-import io.quarkus.cli.commands.RemoveExtensions;
-import io.quarkus.cli.commands.QuarkusCommandOutcome;
-import io.quarkus.cli.commands.file.BuildFile;
-import io.quarkus.cli.commands.writer.FileProjectWriter;
-import io.quarkus.generators.BuildTool;
-import io.quarkus.platform.descriptor.QuarkusPlatformDescriptor;
-import io.quarkus.platform.tools.MessageWriter;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+
+import io.quarkus.cli.commands.QuarkusCommandOutcome;
+import io.quarkus.cli.commands.RemoveExtensions;
+import io.quarkus.cli.commands.file.BuildFile;
+import io.quarkus.cli.commands.writer.FileProjectWriter;
+import io.quarkus.generators.BuildTool;
+import io.quarkus.platform.descriptor.QuarkusPlatformDescriptor;
+import io.quarkus.platform.tools.MessageWriter;
+
 /**
- * Allow removing an extension to an existing pom.xml file.
+ * Allow removing an extension from an existing pom.xml file.
  * Because you can remove one or several extension in one go, there are 2 mojos:
  * {@code remove-extensions} and {@code remove-extension}. Both supports the {@code extension} and {@code extensions}
  * parameters.

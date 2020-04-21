@@ -36,36 +36,30 @@ public class RemoveExtensionsCommandHandler implements QuarkusCommand {
         final BuildFile buildFile = invocation.getBuildFile();
         try {
             for (String query : extensions) {
-
-                if (query.contains(":")) {
-                    // GAV case.
-                    updated = buildFile.addExtensionAsGAV(query) || updated;
-                } else {
-                    SelectionResult result = select(query, registry, false);
-                    if (!result.matches()) {
-                        StringBuilder sb = new StringBuilder();
-                        // We have 3 cases, we can still have a single candidate, but the match is on label
-                        // or we have several candidates, or none
-                        Set<Extension> candidates = result.getExtensions();
-                        if (candidates.isEmpty()) {
-                            // No matches at all.
-                            PRINTER.nok(" Cannot find a dependency matching '" + query + "', maybe a typo?");
-                            success = false;
-                        } else {
-                            sb.append(Printer.NOK).append(" Multiple extensions matching '").append(query).append("'");
-                            result.getExtensions()
-                                    .forEach(extension -> sb.append(System.lineSeparator()).append("     * ")
-                                            .append(extension.managementKey()));
-                            sb.append(System.lineSeparator())
-                                    .append("     Be more specific e.g using the exact name or the full GAV.");
-                            PRINTER.print(sb.toString());
-                            success = false;
-                        }
-                    } else { // Matches.
-                        for (Extension extension : result) {
-                            // Don't set success to false even if the dependency is not added; as it's should be idempotent.
-                            updated = buildFile.addDependency(invocation.getPlatformDescriptor(), extension) || updated;
-                        }
+                SelectionResult result = select(query, registry, false);
+                if (!result.matches()) {
+                    StringBuilder sb = new StringBuilder();
+                    // We have 3 cases, we can still have a single candidate, but the match is on label
+                    // or we have several candidates, or none
+                    Set<Extension> candidates = result.getExtensions();
+                    if (candidates.isEmpty()) {
+                        // No matches at all.
+                        PRINTER.nok(" Cannot find a dependency matching '" + query + "', maybe a typo?");
+                        success = false;
+                    } else {
+                        sb.append(Printer.NOK).append(" Multiple extensions matching '").append(query).append("'");
+                        result.getExtensions()
+                                .forEach(extension -> sb.append(System.lineSeparator()).append("     * ")
+                                        .append(extension.managementKey()));
+                        sb.append(System.lineSeparator())
+                                .append("     Be more specific e.g using the exact name or the full GAV.");
+                        PRINTER.print(sb.toString());
+                        success = false;
+                    }
+                } else { // Matches.
+                    for (Extension extension : result) {
+                        // Don't set success to false even if the dependency is not removed; as it's should be idempotent.
+                        updated = buildFile.removeDependency(invocation.getPlatformDescriptor(), extension) || updated;
                     }
                 }
             }
@@ -87,10 +81,10 @@ public class RemoveExtensionsCommandHandler implements QuarkusCommand {
     /**
      * Selection algorithm.
      *
-     * @param query the query
-     * @param extensions the extension list
+     * @param query       the query
+     * @param extensions  the extension list
      * @param labelLookup whether or not the query must be tested against the labels of the extensions. Should
-     *        be {@code false} by default.
+     *                    be {@code false} by default.
      * @return the list of matching candidates and whether or not a match has been found.
      */
     static SelectionResult select(String query, List<Extension> extensions, boolean labelLookup) {
