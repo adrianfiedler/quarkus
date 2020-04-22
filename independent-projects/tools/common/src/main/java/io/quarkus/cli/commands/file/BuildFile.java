@@ -12,11 +12,7 @@ import io.quarkus.maven.utilities.QuarkusDependencyPredicate;
 import io.quarkus.platform.descriptor.QuarkusPlatformDescriptor;
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TreeMap;
+import java.util.*;
 import org.apache.maven.model.Dependency;
 
 public abstract class BuildFile implements Closeable {
@@ -58,6 +54,7 @@ public abstract class BuildFile implements Closeable {
     }
 
     public boolean removeDependency(QuarkusPlatformDescriptor platform, Extension extension) throws IOException {
+        // workaround: gradle always returns hasDependency = false, because of empty dependency list
         if (!hasDependency(extension)) {
             PRINTER.noop(" Skipping not existing extension " + extension.managementKey());
             return false;
@@ -79,7 +76,7 @@ public abstract class BuildFile implements Closeable {
     }
 
     protected abstract void addDependencyInBuildFile(Dependency dependency) throws IOException;
-    
+
     protected abstract void removeDependencyInBuildFile(Dependency dependency) throws IOException;
 
     protected abstract boolean hasDependency(Extension extension) throws IOException;
@@ -94,6 +91,21 @@ public abstract class BuildFile implements Closeable {
             return true;
         } else {
             PRINTER.noop(" Skipping already present dependency " + parsed.getManagementKey());
+            return false;
+        }
+    }
+
+    public boolean removeExtensionAsGAV(String query) throws IOException {
+        Dependency parsed = MojoUtils.parse(query.trim());
+        boolean alreadyThere = getDependencies().stream()
+                .anyMatch(d -> d.getManagementKey().equalsIgnoreCase(parsed.getManagementKey()));
+        // workaround: gradle always returns hasDependency = false, because of empty dependency list
+        if (alreadyThere) {
+            PRINTER.ok(" Removing dependency " + parsed.getManagementKey());
+            removeDependencyInBuildFile(parsed);
+            return true;
+        } else {
+            PRINTER.noop(" Skipping not existing dependency " + parsed.getManagementKey());
             return false;
         }
     }

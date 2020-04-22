@@ -1,16 +1,15 @@
 package io.quarkus.cli.commands;
 
+import static java.util.Arrays.asList;
+
 import io.quarkus.cli.commands.writer.FileProjectWriter;
 import io.quarkus.maven.utilities.MojoUtils;
-import org.apache.maven.model.Model;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-
-import static java.util.Arrays.asList;
+import org.apache.maven.model.Model;
 
 class RemoveMavenExtensionsTest extends AbstractRemoveExtensionsTest<Model> {
 
@@ -25,7 +24,9 @@ class RemoveMavenExtensionsTest extends AbstractRemoveExtensionsTest<Model> {
                 .execute();
         new AddExtensions(new FileProjectWriter(getProjectPath().toFile()), getPlatformDescriptor())
                 .extensions(new HashSet<>(asList("quarkus-agroal", "quarkus-arc", " hibernate-validator",
-                        "commons-io:commons-io:2.6", "quarkus-jdbc-postgresql", "quarkus-hibernate-search-elasticsearch", "quarkus-vertx")))
+                        "commons-io:commons-io:2.6", "quarkus-jdbc-postgresql", "quarkus-hibernate-search-elasticsearch",
+                        "quarkus-vertx",
+                        "quarkus-smallrye-openapi", "quarkus-smallrye-health", "quarkus-hibernate-orm-panache")))
                 .execute();
         return MojoUtils.readPom(pom);
     }
@@ -44,7 +45,7 @@ class RemoveMavenExtensionsTest extends AbstractRemoveExtensionsTest<Model> {
 
     @Override
     protected long countDependencyOccurrences(final Model project, final String groupId, final String artifactId,
-                                              final String version) {
+            final String version) {
         return project.getDependencies().stream().filter(d -> d.getGroupId().equals(groupId) &&
                 d.getArtifactId().equals(artifactId) &&
                 Objects.equals(d.getVersion(), version)).count();

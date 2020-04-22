@@ -10,7 +10,6 @@ import io.quarkus.maven.utilities.MojoUtils;
 import io.quarkus.maven.utilities.MojoUtils.Element;
 import io.quarkus.platform.descriptor.QuarkusPlatformDescriptor;
 import io.quarkus.platform.tools.ToolsUtils;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -18,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
-
 import org.apache.maven.model.Activation;
 import org.apache.maven.model.ActivationProperty;
 import org.apache.maven.model.Build;
@@ -68,7 +66,7 @@ public class MavenBuildFile extends BuildFile {
     protected void removeDependencyInBuildFile(Dependency dependency) throws IOException {
         if (getModel() != null && getModel().getDependencies() != null) {
             getModel().getDependencies().removeIf(dep -> dep.getGroupId().equals(dependency.getGroupId())
-                    && dep.getArtifactId().equals(dependency.getArtifactId()) 
+                    && dep.getArtifactId().equals(dependency.getArtifactId())
                     && (dep.getVersion() == null || dep.getVersion().equals(dependency.getVersion())));
         }
     }
@@ -101,7 +99,7 @@ public class MavenBuildFile extends BuildFile {
 
     @Override
     public void completeFile(String groupId, String artifactId, String version, QuarkusPlatformDescriptor platform,
-                             Properties props) throws IOException {
+            Properties props) throws IOException {
         addQuarkusProperties(platform);
         addBom(platform);
         final String pluginGroupId = ToolsUtils.getPluginGroupId(props);

@@ -9,10 +9,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
-import java.util.Scanner;
+import java.util.*;
 import java.util.function.Consumer;
 import org.apache.maven.model.Dependency;
 
@@ -233,7 +230,39 @@ public class GradleBuildFile extends BuildFile {
 
     @Override
     public List<Dependency> getDependencies() throws IOException {
-        return Collections.emptyList();
+        List<Dependency> dependencies = new ArrayList<>();
+        try (Scanner scanner = new Scanner(
+                new ByteArrayInputStream(getModel().getBuildContent().getBytes(StandardCharsets.UTF_8)),
+                StandardCharsets.UTF_8.name())) {
+            boolean done = false;
+            boolean inDependencySection = false;
+            while (scanner.hasNextLine() && !done) {
+                String currentLine = scanner.nextLine();
+                if (inDependencySection && currentLine.contains("'")) {
+                    String dependencyString = currentLine.substring(currentLine.indexOf('\'') + 1,
+                            currentLine.lastIndexOf('\''));
+                    String[] dependencyComponents = dependencyString.split(":");
+                    Dependency dependency = new Dependency();
+                    if (dependencyComponents.length >= 1) {
+                        dependency.setGroupId(dependencyComponents[0]);
+                    }
+                    if (dependencyComponents.length >= 2) {
+                        dependency.setArtifactId(dependencyComponents[1]);
+                    }
+                    if (dependencyComponents.length >= 3) {
+                        dependency.setVersion(dependencyComponents[2]);
+                    }
+                    dependencies.add(dependency);
+                }
+                if (currentLine.contains("dependencies")) {
+                    inDependencySection = true;
+                }
+                if (inDependencySection && currentLine.contains("}\n")) {
+                    done = true;
+                }
+            }
+        }
+        return dependencies;
     }
 
     @Override

@@ -1,15 +1,14 @@
 package io.quarkus.cli.commands;
 
+import static java.util.Arrays.asList;
+
 import io.quarkus.cli.commands.file.GradleBuildFile;
 import io.quarkus.cli.commands.writer.FileProjectWriter;
 import io.quarkus.generators.BuildTool;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.List;
-
-import static java.util.Arrays.asList;
 
 class RemoveGradleExtensionsTest extends AbstractRemoveExtensionsTest<List<String>> {
 
@@ -25,7 +24,9 @@ class RemoveGradleExtensionsTest extends AbstractRemoveExtensionsTest<List<Strin
                 .execute();
         new AddExtensions(new FileProjectWriter(getProjectPath().toFile()), BuildTool.GRADLE, getPlatformDescriptor())
                 .extensions(new HashSet<>(asList("quarkus-agroal", "quarkus-arc", " hibernate-validator",
-                        "commons-io:commons-io:2.6", "quarkus-jdbc-postgresql", "quarkus-hibernate-search-elasticsearch", "quarkus-vertx")))
+                        "commons-io:commons-io:2.6", "quarkus-jdbc-postgresql", "quarkus-hibernate-search-elasticsearch",
+                        "quarkus-vertx",
+                        "quarkus-smallrye-openapi", "quarkus-smallrye-health", "quarkus-hibernate-orm-panache")))
                 .execute();
         return readProject();
     }
@@ -36,7 +37,8 @@ class RemoveGradleExtensionsTest extends AbstractRemoveExtensionsTest<List<Strin
     }
 
     @Override
-    protected QuarkusCommandOutcome removeExtensions(final List<String> extensions) throws IOException, QuarkusCommandException {
+    protected QuarkusCommandOutcome removeExtensions(final List<String> extensions)
+            throws IOException, QuarkusCommandException {
         return new RemoveExtensions(new FileProjectWriter(getProjectPath().toFile()), BuildTool.GRADLE, getPlatformDescriptor())
                 .extensions(new HashSet<>(extensions))
                 .execute();
@@ -44,7 +46,7 @@ class RemoveGradleExtensionsTest extends AbstractRemoveExtensionsTest<List<Strin
 
     @Override
     protected long countDependencyOccurrences(final List<String> buildFile, final String groupId, final String artifactId,
-                                              final String version) {
+            final String version) {
         return buildFile.stream()
                 .filter(d -> d.equals(getBuildFileDependencyString(groupId, artifactId, version)))
                 .count();
