@@ -55,7 +55,7 @@ public abstract class BuildFile implements Closeable {
 
     public boolean removeDependency(QuarkusPlatformDescriptor platform, Extension extension) throws IOException {
         // workaround: gradle always returns hasDependency = false, because of empty dependency list
-        if (!hasDependency(extension)) {
+        if (!hasDependency(extension) && !getBuildTool().equals(BuildTool.GRADLE)) {
             PRINTER.noop(" Skipping not existing extension " + extension.managementKey());
             return false;
         } else {
@@ -100,7 +100,7 @@ public abstract class BuildFile implements Closeable {
         boolean alreadyThere = getDependencies().stream()
                 .anyMatch(d -> d.getManagementKey().equalsIgnoreCase(parsed.getManagementKey()));
         // workaround: gradle always returns hasDependency = false, because of empty dependency list
-        if (alreadyThere) {
+        if (alreadyThere || getBuildTool().equals(BuildTool.GRADLE)) {
             PRINTER.ok(" Removing dependency " + parsed.getManagementKey());
             removeDependencyInBuildFile(parsed);
             return true;

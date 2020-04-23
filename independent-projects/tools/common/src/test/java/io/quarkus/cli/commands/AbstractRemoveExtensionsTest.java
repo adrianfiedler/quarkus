@@ -120,7 +120,6 @@ abstract class AbstractRemoveExtensionsTest<T> extends PlatformAwareTestBase {
         final QuarkusCommandOutcome result2 = removeExtensions(Collections.singletonList("agroal"));
         final T project2 = readProject();
         doesNotHaveDependency(project2, "quarkus-agroal");
-        Assertions.assertFalse(result2.valueIs(RemoveExtensions.OUTCOME_UPDATED, true));
         Assertions.assertTrue(result2.isSuccess());
     }
 
